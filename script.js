@@ -1,6 +1,6 @@
 'use strict';
 
-const screen = document.getElementById( 'screen' );
+const screen = document.getElementById('screen');
 
 const controlls = {
     firstPlayer: {
@@ -19,6 +19,8 @@ const controlls = {
     }
 }
 
+const playerName = Math.random() * 1000 + '';
+
 const playerVisualized = {}
 const playerList = []
 
@@ -26,7 +28,7 @@ const armourVisualized = {}
 const armorList = []
 
 class Armour {
-    constructor( color, id, spawnPositionX, spawnPositionY, spawnPositionZ, speed, damage ) {
+    constructor(color, id, spawnPositionX, spawnPositionY, spawnPositionZ, speed, damage) {
         this.color = color;
         this.id = id;
         this.x = spawnPositionX /*ДЛЯ КОМПЕНСАЦИИ CSS*/;
@@ -37,34 +39,34 @@ class Armour {
         this.saveZone = true;
         this.damage = damage;
 
-        visualisationArmourAdd( this );
+        visualisationArmourAdd(this);
     }
 
     initInert() {
-        this.interval = setInterval( () => {
-            directionalEffect( this.z, this.speed );
-            visualisationArmourRerender( this )
-        }, 100 );
-        setTimeout( () => {
+        this.interval = setInterval(() => {
+            directionalEffect(this.z, this.speed);
+            visualisationArmourRerender(this)
+        }, 100);
+        setTimeout(() => {
             this.saveZone = false;
-        }, 200 );
+        }, 200);
     }
 
     stopInert() {
-        clearInterval( this.interval );
+        clearInterval(this.interval);
     }
 
-    shiftX = ( units ) => {
+    shiftX = (units) => {
         this.x += units;
     }
 
-    shiftY = ( units ) => {
+    shiftY = (units) => {
         this.y += units;
     }
 }
 
 class Player {
-    constructor( color, name, startPositionX, startPositionY, stats ) {
+    constructor(color, name, startPositionX, startPositionY, stats) {
         this.color = color;
         this.name = name;
         this.x = startPositionX /*ДЛЯ КОМПЕНСАЦИИ CSS*/;
@@ -76,44 +78,44 @@ class Player {
         this.speed = stats.speed;
     }
 
-    shiftX = ( units ) => {
+    shiftX = (units) => {
         this.x += units;
     }
 
-    shiftY = ( units ) => {
+    shiftY = (units) => {
         this.y += units;
     }
 
-    shiftZ = ( angle ) => {
+    shiftZ = (angle) => {
         this.z += angle;
     }
 
-    getDamage = ( damage ) => {
+    getDamage = (damage) => {
         this.hp -= damage;
-        if ( this.hp <= 0 ) {
-            setTimeout( () => {
-                death( this.name );
+        if (this.hp <= 0) {
+            setTimeout(() => {
+                death(this.name);
                 window.location.reload();
-            }, 350 )
+            }, 350)
         }
     }
 }
 
-const directionalEffect = ( z, number ) => {
+const directionalEffect = (z, number) => {
     const radian = 180 / Math.PI;
     return {
-        coifX: number * Math.cos( z / radian ),
-        coifY: number * Math.sin( z / radian )
+        coifX: number * Math.cos(z / radian),
+        coifY: number * Math.sin(z / radian)
     }
 }
 
-function initControllers( controllsSet, player ) {
+function initControllers(controllsSet, player) {
     // if ( !playerVisualized[player.name] ) {
     //     throw 'ТАКОГО ИГРОКА НЕ СУЩЕСТВУЕТ !';
     // }
     let lastKey = null;
     let interval = null;
-    document.addEventListener( 'keydown', ( e ) => {
+    document.addEventListener('keydown', (e) => {
         if (
             e.code !== controllsSet.top &&
             e.code !== controllsSet.left &&
@@ -123,49 +125,49 @@ function initControllers( controllsSet, player ) {
         ) {
             return;
         }
-        if ( lastKey === e.code ) return;
+        if (lastKey === e.code) return;
         lastKey = e.code;
-        clearInterval( interval );
+        clearInterval(interval);
 
-        const { coifX, coifY } = directionalEffect( player.z, player.speed )
+        const {coifX, coifY} = directionalEffect(player.z, player.speed)
 
-        if ( e.code === controllsSet.top ) {
-            interval = setInterval( () => {
-                player.shiftX( coifX );
-                player.shiftY( coifY );
-            }, 33 )
-        } else if ( e.code === controllsSet.bottom ) {
-            interval = setInterval( () => {
-                player.shiftX( -coifX );
-                player.shiftY( -coifY );
-            }, 33 )
-        } else if ( e.code === controllsSet.left ) {
-            interval = setInterval( () => {
-                player.shiftZ( player.speed );
-            }, 33 )
-        } else if ( e.code === controllsSet.right ) {
-            interval = setInterval( () => {
-                player.shiftZ( -player.speed );
-            }, 33 )
-        } else if ( e.code === controllsSet.attack ) {
-            if ( player.mp <= 0 || typeof player.mp !== 'number' ) {
+        if (e.code === controllsSet.top) {
+            interval = setInterval(() => {
+                player.shiftX(coifX);
+                player.shiftY(coifY);
+            }, 33)
+        } else if (e.code === controllsSet.bottom) {
+            interval = setInterval(() => {
+                player.shiftX(-coifX);
+                player.shiftY(-coifY);
+            }, 33)
+        } else if (e.code === controllsSet.left) {
+            interval = setInterval(() => {
+                player.shiftZ(player.speed);
+            }, 33)
+        } else if (e.code === controllsSet.right) {
+            interval = setInterval(() => {
+                player.shiftZ(-player.speed);
+            }, 33)
+        } else if (e.code === controllsSet.attack) {
+            if (player.mp <= 0 || typeof player.mp !== 'number') {
                 player.mp = 'ПУСТО'
                 return;
             }
-            const armour = new Armour( 'green', Math.random(), player.x, player.y, player.z, 15, player.damage );
+            const armour = new Armour('green', Math.random(), player.x, player.y, player.z, 15, player.damage);
             player.mp -= 1;
-            armorList.push( armour );
+            armorList.push(armour);
             armour.initInert();
-            setInterval( () => {
-                const { coifX, coifY } = directionalEffect( armour.z, armour.speed );
-                armour.shiftX( coifX );
-                armour.shiftY( coifY );
-            }, 50 )
+            setInterval(() => {
+                const {coifX, coifY} = directionalEffect(armour.z, armour.speed);
+                armour.shiftX(coifX);
+                armour.shiftY(coifY);
+            }, 50)
 
         }
-    } );
+    });
 
-    document.addEventListener( 'keyup', ( e ) => {
+    document.addEventListener('keyup', (e) => {
         if (
             e.code !== controllsSet.top &&
             e.code !== controllsSet.left &&
@@ -176,23 +178,23 @@ function initControllers( controllsSet, player ) {
         ) {
             return;
         }
-        if ( lastKey === e.code ) lastKey = null;
-        clearInterval( interval )
-    } );
+        if (lastKey === e.code) lastKey = null;
+        clearInterval(interval)
+    });
 
 }
 
-function death( name ) {
-    alert( `${name} УНИЧТОЖЕН` )
+function death(name) {
+    alert(`${name} УНИЧТОЖЕН`)
 }
 
 function initGame() {
 
 }
 
-function visualisationPlayer( player ) {
-    if ( !playerVisualized[player.name] ) {
-        const elem = document.createElement( 'div' );
+function visualisationPlayer(player) {
+    if (!playerVisualized[player.name]) {
+        const elem = document.createElement('div');
         elem.style.position = 'absolute';
         elem.style.width = `100px`;
         elem.style.height = `100px`;
@@ -216,7 +218,7 @@ function visualisationPlayer( player ) {
         <div>SPEED: ${player.speed}</div>
         <div>ANGLE: ${player.z}</div>
         `;
-        screen.append( elem );
+        screen.append(elem);
         playerVisualized[player.name] = elem;
     } else {
         playerVisualized[player.name].style.bottom = `${player.y - 50}px`;
@@ -228,14 +230,14 @@ function visualisationPlayer( player ) {
         <div style="transform-origin: center; width: 100px; height: 10px; border-radius: 3px; border-right: 5px solid aqua; transform: rotate(${-player.z}deg);"></div>
         <div>MP: ${player.mp}</div>
         <div>SPEED: ${player.speed}</div>
-        <div>ANGLE: ${Math.floor( player.z )}</div>
+        <div>ANGLE: ${Math.floor(player.z)}</div>
         `;
     }
 }
 
-function visualisationArmourAdd( armour ) {
-    if ( !armourVisualized[armour.id] ) {
-        const elem = document.createElement( 'div' );
+function visualisationArmourAdd(armour) {
+    if (!armourVisualized[armour.id]) {
+        const elem = document.createElement('div');
         elem.style.position = 'absolute';
         elem.style.width = `10px`;
         elem.style.height = `10px`;
@@ -253,12 +255,12 @@ function visualisationArmourAdd( armour ) {
         elem.innerHTML = `
         <div style="transform-origin: center; width: 10px; height: 10px; border-radius: 3px; border-right: 2px solid aqua; transform: rotate(${-armour.z}deg);"></div>
         `;
-        screen.append( elem );
+        screen.append(elem);
         armourVisualized[armour.id] = elem;
     }
 }
 
-function visualisationArmourRerender( armour ) {
+function visualisationArmourRerender(armour) {
     armourVisualized[armour.id].style.bottom = `${armour.y - 5}px`;
     armourVisualized[armour.id].style.left = `${armour.x + 5}px`;
     armourVisualized[armour.id].innerHTML = `
@@ -266,11 +268,11 @@ function visualisationArmourRerender( armour ) {
         `;
 }
 
-function limitMovePlayer( player, angle ) {
+function limitMovePlayer(player, angle) {
 }
 
 function collisions() {
-    for ( let i = 0; playerList.length > i; i++ ) {
+    for (let i = 0; playerList.length > i; i++) {
         // playerList.forEach( item => {
         //     if ( playerList[i].x - item.x >= 100 ) {
         //         const angle = Math.atan( ( ( playerList[i].y - item.y ) / ( playerList[i].x - item.x ) ) );
@@ -279,25 +281,40 @@ function collisions() {
         //     }
         // } );
 
-        armorList.forEach( ( item, index ) => {
-            if ( ( playerList[i].x - item.x ) * ( playerList[i].x - item.x ) + ( playerList[i].y - item.y ) * ( playerList[i].y - item.y ) <= (50+2) * (50+2) ){
-                if ( !item.saveZone ) {
-                    playerList[i].getDamage( item.damage );
-                    if ( armourVisualized[item.id] ) {
+        armorList.forEach((item, index) => {
+            if ((playerList[i].x - item.x) * (playerList[i].x - item.x) + (playerList[i].y - item.y) * (playerList[i].y - item.y) <= (50 + 2) * (50 + 2)) {
+                if (!item.saveZone) {
+                    playerList[i].getDamage(item.damage);
+                    if (armourVisualized[item.id]) {
                         armourVisualized[item.id].remove();
                     }
                     armorList[index].stopInert();
                     delete armourVisualized[item.id];
-                    armorList.pop( i );
+                    armorList.pop(i);
                 }
             }
-        } );
+        });
     }
 }
 
-const firstPlayer = new Player(
+function initOnlineController(player) {
+    setInterval(() => {
+        // sync
+        axios.post('http://85.113.58.53:9990/move', {
+            playerName,
+            position: {x: window[playerName].x, y: window[playerName].y, z: window[playerName].z}
+        }).then(res => {
+            console.log(res.data)
+            secondPlayer.x = res.data.x;
+            secondPlayer.y = res.data.y;
+            secondPlayer.z = res.data.z;
+        });
+    }, 10)
+}
+
+window[playerName] = new Player(
     'red',
-    'firstPlayer',
+    playerName,
     50,
     50,
     {
@@ -308,22 +325,24 @@ const firstPlayer = new Player(
     }
 );
 
-initControllers( controlls.firstPlayer, firstPlayer )
+initControllers(controlls.firstPlayer, window[playerName])
 
-const secondPlayer = new Player( 'blue', 'second', 500, 500, {
+const secondPlayer = new Player('blue', 'second', 500, 500, {
     hp: 60,
     mp: 25,
     damage: 15,
     speed: 2
-} );
+});
 
-initControllers( controlls.secondPlayer, secondPlayer )
+// initControllers( controlls.secondPlayer, secondPlayer )
 
-playerList.push( firstPlayer )
-playerList.push( secondPlayer )
+playerList.push(window[playerName])
+playerList.push(secondPlayer)
 
-setInterval( () => {
-    visualisationPlayer( firstPlayer );
-    visualisationPlayer( secondPlayer );
+initOnlineController(window[playerName]);
+
+setInterval(() => {
+    visualisationPlayer(window[playerName]);
+    visualisationPlayer(secondPlayer);
     collisions();
-}, 100 )
+}, 100)
